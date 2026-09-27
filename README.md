@@ -4,8 +4,8 @@ Minecraft 風格的中英文個人作品集。完整靜態網站，包含背景�
 
 ## 固定發布位置
 
-目標儲存庫：`fredCK666/freds-world`。
-GitHub Pages 使用 `main` 分支根目錄。首次建立儲存庫並啟用 Pages 後，預定網址為 https://fredck666.github.io/freds-world/ 。
+儲存庫：`fredCK666/freds-world`。
+GitHub Pages 使用 `main` 分支根目錄。固定作品集網址： https://fredck666.github.io/freds-world/ 。
 
 之後新增作品與調整技能，統一更新這個儲存庫。GitHub Pages 會從 main 發布更新。
 
