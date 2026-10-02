@@ -22,3 +22,8 @@ GitHub Pages 使用 `main` 分支根目錄。固定作品集網址： https://fr
 無需建置。保留 `.nojekyll`，所有本機素材使用相對路徑，支援 GitHub Pages 子目錄。
 
 Minecraft 與 C418 配樂的原作者資訊保留於網站與歌單；本網站不是 Minecraft 官方網站。
+
+## Kiki 髮色魔法屋
+
+獨立美髮網站： https://fredck666.github.io/freds-world/kiki-hair-magic/ 。
+網站與本機影像辨識素材保存在 `kiki-hair-magic/`；資源路徑支援 GitHub Pages 子目錄。
