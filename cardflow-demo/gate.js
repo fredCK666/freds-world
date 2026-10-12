@@ -1,0 +1,1 @@
+(()=>{let allowed=false;try{allowed=sessionStorage.getItem('cardflow-demo-access')==='granted';}catch{}if(allowed){document.documentElement.style.visibility='visible';}else{location.replace('./');}})();
