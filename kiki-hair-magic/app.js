@@ -1,5 +1,5 @@
 import{hairAlphaFromScores,recolorPixels}from'./hair-color.js';
-import{WORKS,SERVICES,NOVEMBER_MENU,LENGTHS,COLORS,estimate,LINE_URL}from'./data.js?v=20261018-gallery';
+import{WORKS,SERVICES,NOVEMBER_MENU,LENGTHS,COLORS,estimate,LINE_URL}from'./data.js?v=20261018-gallery2';
 const $=s=>document.querySelector(s);const $$=s=>Array.from(document.querySelectorAll(s));
 let favorites=new Set();try{favorites=new Set(JSON.parse(localStorage.getItem('kiki-favorites')||'[]').filter(id=>WORKS.some(w=>w.id===id)))}catch{}
 let filter='全部作品',expanded=false,chosenColor=null,currentColor=COLORS[0],toastTimer;
@@ -11,13 +11,13 @@ function albumViewer(w){
  const track=document.createElement('div');track.className='album-track';track.tabIndex=0;track.setAttribute('aria-label',w.name+'，左右滑動查看作品');
  const photos=w.reel?[]:(w.photos.length?w.photos:[w.cover]);
  photos.forEach((src,i)=>{const slide=document.createElement('div');slide.className='album-slide';slide.setAttribute('role','group');slide.setAttribute('aria-label',`照片 ${i+1} / ${photos.length}`);const img=document.createElement('img');img.src=src;img.alt=`${w.name}・第 ${i+1} 張`;img.loading=i?'lazy':'eager';slide.append(img);track.append(slide)});
- if(w.hasVideo){const slide=document.createElement('div');slide.className='album-slide video-slide';const poster=document.createElement('img');poster.src=w.cover;poster.alt=w.name+'影片封面';const play=document.createElement('button');play.className='btn dark video-play';play.textContent=w.reel?'▶ 播放 Reels':'▶ 查看這篇作品的影片';play.onclick=()=>{const frame=document.createElement('iframe');frame.src=`https://www.instagram.com/${w.reel?'reel':'p'}/${w.id}/embed/`;frame.title=w.name+' Instagram 影片';frame.allow='autoplay; encrypted-media; fullscreen; picture-in-picture';frame.allowFullscreen=true;frame.referrerPolicy='strict-origin-when-cross-origin';slide.replaceChildren(frame);};slide.append(poster,play);track.append(slide)}
+ if(w.hasVideo){const slide=document.createElement('div');slide.className='album-slide video-slide';const poster=document.createElement('img');poster.src=w.cover;poster.alt=w.name+'影片封面';const play=document.createElement('button');play.className='btn dark video-play';play.textContent=w.reel?'▶ 播放 Reels':'▶ 查看這篇作品的影片';play.onclick=()=>{const frame=document.createElement('iframe');frame.src=`https://www.instagram.com/${w.reel?'reel':'p'}/${w.id}/embed/?hl=zh-tw`;frame.title=w.name+' Instagram 影片';frame.allow='autoplay; encrypted-media; fullscreen; picture-in-picture';frame.allowFullscreen=true;frame.referrerPolicy='strict-origin-when-cross-origin';slide.replaceChildren(frame);};slide.append(poster,play);track.append(slide)}
  const total=track.children.length;let index=0;const controls=document.createElement('div');controls.className='album-controls';const prev=document.createElement('button'),next=document.createElement('button'),counter=document.createElement('span');prev.textContent='←';next.textContent='→';prev.setAttribute('aria-label','上一張');next.setAttribute('aria-label','下一張');counter.setAttribute('aria-live','polite');
  const update=()=>{index=Math.round(track.scrollLeft/Math.max(track.clientWidth,1));counter.textContent=`${index+1} / ${total}`;prev.disabled=index===0;next.disabled=index>=total-1;};
  const move=delta=>track.scrollTo({left:Math.max(0,Math.min(total-1,index+delta))*track.clientWidth,behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'});
  prev.onclick=()=>move(-1);next.onclick=()=>move(1);track.addEventListener('scroll',update,{passive:true});track.addEventListener('keydown',e=>{if(e.key==='ArrowLeft'||e.key==='ArrowRight'){e.preventDefault();move(e.key==='ArrowRight'?1:-1)}});
- controls.append(prev,counter,next);shell.append(track,controls);update();
- const help=document.createElement('p');help.className='album-hint';help.textContent=total>1?'左右滑動，或使用箭頭查看完整作品':'作品照片';shell.append(help);
+ controls.hidden=total<2;controls.append(prev,counter,next);shell.append(track,controls);update();
+ const help=document.createElement('p');help.className='album-hint';help.textContent=total>1?'左右滑動，或使用箭頭查看完整作品':(w.reel?'影片由 Instagram 提供':'作品照片');shell.append(help);
  if(w.hasVideo){const fallback=document.createElement('a');fallback.className='text-link video-fallback';fallback.href=w.source;fallback.target='_blank';fallback.rel='noopener noreferrer';fallback.textContent='也可以到 Instagram 觀看原影片 ↗';shell.append(fallback)}
  return shell;
 }
