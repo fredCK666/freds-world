@@ -21,7 +21,7 @@ addEventListener('pageshow', event => {
   if (event.persisted || !visitorInteracted) startAtTop();
 });
 </script>
-<link rel="stylesheet" href="./style.css?v=20261018-polish1"><script type="module" src="./app.js?v=20261018-polish1"></script>
+<link rel="stylesheet" href="./style.css?v=20261018-nav1"><script type="module" src="./app.js?v=20261018-nav1"></script>
 </head>
 <body id="top">
 <a href="#main" class="skip">跳至主要內容</a>
@@ -42,7 +42,7 @@ addEventListener('pageshow', event => {
 <section class="faq wrap"><div><div class="eyebrow">BEFORE WE MEET</div><h2>變身前的小問答</h2></div><div><details><summary>不知道自己適合什麼髮色怎麼辦？</summary><p>先收藏喜歡的作品，也可以使用髮色魔法鏡試色，再把目前髮況照片傳給 Kiki 討論。</p></details><details><summary>照片試色等於實際染出來的顏色嗎？</summary><p>不等於。照片試色是風格參考，底色、染燙紀錄、髮質與光線都會影響成果，是否需要漂髮及可達到的效果須先評估。</p></details><details><summary>填好表單就算預約成功嗎？</summary><p>還不算。網站會整理諮詢內容，請複製並透過 LINE 傳給 Kiki，收到她回覆確認日期、時間及服務後才算完成預約。</p></details><details><summary>我的照片和填寫資料會被保存嗎？</summary><p>試色照片只在本次頁面的裝置記憶體中處理，離開或重新整理就會清除。表單不會傳到網站伺服器；只有你主動貼到 LINE 的內容才會交給 Kiki。收藏作品則保留在本機瀏覽器。</p></details></div></section>
 </main>
 <footer><a class="brand" href="#top"><span class="brand-mark">k.</span><span>Kiki<span class="brand-sub">HAIR MAGIC ROOM</span></span></a><p>每一種喜歡，都值得被好好實現。<br><small>© <span id="year"></span> Kiki 髮色魔法屋 · 雲林</small></p><a href="#top" class="text-link">回到最上方 ↑</a></footer>
-<div class="mobile-bar"><a href="#works">♡ 看作品</a><a href="#prices">＄ 看價目</a><a href="#consult" class="mobile-cta">♡ 預約諮詢</a></div>
+<nav class="mobile-bar" aria-label="手機快捷導覽"><div class="mobile-nav-track"><span class="mobile-nav-indicator" aria-hidden="true"></span><a href="#works"><span class="mobile-nav-icon" aria-hidden="true">♡</span>看作品</a><a href="#prices"><span class="mobile-nav-icon" aria-hidden="true">＄</span>看價目</a><a href="#consult"><span class="mobile-nav-icon" aria-hidden="true">✧</span>預約諮詢</a></div></nav>
 <dialog id="work-dialog"><button class="dialog-close" aria-label="關閉作品">×</button><div id="work-detail"></div></dialog>
 <dialog id="consult-dialog"><button class="dialog-close" aria-label="關閉諮詢清單">×</button><div class="dialog-content"><div class="eyebrow">READY TO SAY HELLO</div><h2>你的變身清單準備好了 ♡</h2><p>先複製內容，再開啟 LINE 貼給 Kiki。<br>試色照片請下載後另外附上。</p><textarea id="consult-result" rows="12" readonly aria-label="可複製的諮詢清單"></textarea><button id="copy-consult" class="btn dark full">① 複製諮詢清單</button><a href="https://lin.ee/JQiPDiJ" target="_blank" rel="noopener noreferrer" class="btn outline full">② 開啟 Kiki 的 LINE ↗</a><p class="fine">這是諮詢內容，尚未送出或成立預約。</p></div></dialog>
 <div id="toast" role="status" aria-live="polite"></div><a class="floating-line" href="https://lin.ee/JQiPDiJ" target="_blank" rel="noopener noreferrer" aria-label="開啟 LINE 諮詢"><span>♡</span><b>LINE 諮詢</b><small>找 Kiki 聊聊 ↗</small></a>
