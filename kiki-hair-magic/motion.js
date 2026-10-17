@@ -6,7 +6,7 @@
   function play(el, frames, duration = 320, delay = 0) {
     if (!el || reduced.matches || !el.animate) return;
     active.get(el)?.cancel();
-    const animation = el.animate(frames, { duration, delay, easing: ease });
+    const animation = el.animate(frames, { duration, delay, easing: ease, fill: 'backwards' });
     active.set(el, animation);
   }
   const revealSelector = '.section-head,.quick-points>a,.work-card,.price-menu,.estimate,.studio-grid>*,.about-grid>*,.booking-steps li,#consult-form,.wish-card,.faq>*,footer>*';
