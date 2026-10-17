@@ -21,7 +21,7 @@ addEventListener('pageshow', event => {
   if (event.persisted || !visitorInteracted) startAtTop();
 });
 </script>
-<link rel="stylesheet" href="./style.css?v=20261018-nav2"><script type="module" src="./app.js?v=20261018-nav2"></script>
+<link rel="stylesheet" href="./style.css?v=20261018-motion1"><script type="module" src="./app.js?v=20261018-motion1"></script>
 <style>
 /* Lavender sliding mobile navigation: selection is not tied to the enquiry link. */
 @media(max-width:760px){
@@ -39,6 +39,7 @@ addEventListener('pageshow', event => {
 @media(prefers-reduced-motion:reduce){.mobile-nav-indicator,.mobile-bar .mobile-nav-track a,.mobile-nav-icon{transition:none!important}}
 
 </style>
+<script defer src="./motion.js?v=20261018-motion1"></script>
 </head>
 <body id="top">
 <a href="#main" class="skip">跳至主要內容</a>

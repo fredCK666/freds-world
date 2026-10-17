@@ -23,3 +23,40 @@ html{scroll-padding-top:25px}.topnote{font-size:10px;letter-spacing:.5px}.header
 @media(max-width:760px){html{scroll-padding-top:140px}.header{height:auto;min-height:112px;padding:13px 20px 0;display:grid;grid-template-columns:1fr auto;gap:10px 12px}.header nav{display:flex;grid-row:2;grid-column:1/-1;justify-content:space-between;gap:12px;border-top:1px solid var(--line);font-size:12px;white-space:nowrap}.header nav a{padding:9px 0 11px;min-height:42px}.header>.btn{grid-column:2;grid-row:1}.header .brand-sub{font-size:8px;letter-spacing:1.5px}.hero{padding:34px 0 25px;gap:22px;min-height:0}.hero h1{font-size:clamp(29px,8.7vw,39px);margin:14px 0 18px;line-height:1.48}.hero h1 i{font-size:28px;margin-left:5px}.hero-price-note{gap:10px 14px;margin-top:22px;font-size:12px}.hero-price-note b{font-size:14px}.hero-collage{height:355px}.photo-a{height:250px;top:20px}.photo-b{height:240px;top:78px}.round-sticker{top:238px}.collage-caption{font-size:8px}.quick-points{grid-template-columns:1fr;gap:9px;padding-top:22px}.quick-points>a{padding:15px 17px;gap:13px;border-radius:15px}.quick-points strong{font-size:14px}.quick-points p{font-size:12px}.quick-arrow{display:block}.section{padding:58px 0}.section-head h2{font-size:27px}.section-head p{line-height:1.85}.filter-row{gap:8px}.filter{padding:9px 13px;min-height:42px}.gallery-guide{gap:5px;font-size:11px;padding:13px 0 17px}.gallery{gap:22px 13px}.work-photo,.work-card:nth-child(2n) .work-photo{border-radius:15px}.work-card:nth-child(4n+1) .work-photo{border-radius:80px 80px 15px 15px}.work-info{padding:12px 1px 0}.work-info h3{font-size:14px}.work-info p{font-size:11px}.favorite{width:38px;height:38px;right:8px;bottom:9px}.media-badge{left:8px;bottom:12px;padding:4px 7px;font-size:10px;max-width:calc(100% - 54px)}.pricing-grid,.about-grid{grid-template-columns:1fr}.price-menu,.estimate{padding:23px 20px;border-radius:20px}.price-table td:last-child{font-size:23px}.price-table td{padding:17px 3px}.price-table .small-copy{font-size:12px}.price-menu h3{font-size:18px}.studio-section{padding:52px 0}.studio-steps{gap:9px;justify-content:space-between;font-size:11px;margin-bottom:20px}.studio-steps li{gap:5px}.studio-steps b{height:23px;width:23px}.canvas-panel{min-height:340px}.color-controls{padding:24px 20px}.about-section{padding:48px 0}.about-grid{gap:30px}.about-art{max-width:340px;width:100%;margin:auto;padding:22px 16px}.about-art img{max-height:190px}.about-art .hand{font-size:21px}.booking-steps{grid-template-columns:1fr;margin-bottom:22px;border-radius:16px}.booking-steps li{padding:14px 18px;gap:17px}.booking-steps li+li{border-left:0;border-top:1px solid var(--line)}.booking-steps b{font-size:21px}.booking-steps strong{font-size:13px}.booking-steps span{font-size:12px}#consult-form{padding:24px 20px;border-radius:20px}.form-grid{grid-template-columns:1fr;gap:0}.form-intro p{line-height:1.8}.wish-card{padding:24px 20px}.faq{padding-top:35px;padding-bottom:45px;gap:14px}.faq h2{font-size:26px}footer{padding:28px 20px calc(112px + env(safe-area-inset-bottom))}.mobile-bar{z-index:30}.mobile-bar a{font-size:12px;padding:11px 7px}.fine{line-height:1.85}.dialog-content h2{font-size:23px}input,select,textarea{scroll-margin-top:150px}}
 @media(max-width:359px){.wrap{width:calc(100% - 32px)}.header{padding-left:16px;padding-right:16px}.header nav{font-size:11px;gap:8px}.hero-actions{gap:15px}.hero-actions .btn{padding:12px 14px}.hero-collage{height:325px}.photo-a{height:225px}.photo-b{height:220px}.round-sticker{top:220px}.gallery{gap:20px 10px}.media-badge{font-size:9px}.studio-steps{font-size:10px;gap:6px}.swatch{font-size:9px}.swatch i{width:30px;height:30px}}
 
+
+/* Gentle feedback across the customer journey. */
+@media(prefers-reduced-motion:no-preference){
+  .motion-pending{opacity:0;translate:0 18px}
+  .header{transition:box-shadow .25s ease,border-color .25s ease}
+  .btn,.filter,.tabs button,.tiny-btn,.favorite,.swatch i,.album-controls button,.dialog-close{transition:background-color .22s ease,color .22s ease,border-color .22s ease,box-shadow .22s ease,transform .22s ease}
+  .text-link{transition:color .2s ease,border-color .2s ease}
+  .work-photo{transition:box-shadow .28s ease}
+  .work-info h3{transition:color .2s ease}
+  input,select,textarea,form label,.estimate label{transition:border-color .22s ease,box-shadow .22s ease,color .22s ease,background-color .22s ease}
+  .faq summary,.brush-options summary,.extra-menu summary{transition:color .2s ease}
+  .swatch i{transition:outline-color .2s ease,box-shadow .2s ease}
+  .reading-progress{transition:opacity .2s ease}
+}
+.reading-progress{position:fixed;left:0;right:0;top:0;height:3px;background:linear-gradient(90deg,#d6b5ed,#9670c1,#d5a4cc);transform:scaleX(0);transform-origin:left center;z-index:45;pointer-events:none}
+.header.is-scrolled{box-shadow:0 5px 24px #5835710d;border-bottom-color:#d7c5e4}
+.text-link:hover{color:#8154a8;border-color:#8154a8}
+input:not([type=checkbox]):not([type=range]):not([type=color]):not([type=file]):focus,select:focus,textarea:focus{border-color:#a17abb;box-shadow:0 0 0 4px #c9a9e526;background-color:#fffcff}
+form label:focus-within,.estimate label:focus-within{color:#8154a8}
+.swatch.active i{box-shadow:0 0 0 4px #d6bce43b,inset -4px -5px 9px #0002}
+.favorite.selected{box-shadow:0 3px 15px #ad6a9c35}
+details[open]>summary{color:#8154a8}
+@media(hover:hover) and (pointer:fine){
+  .work-card:hover .work-photo{box-shadow:0 12px 28px #60427324}
+  .work-card:hover .work-info h3{color:#8154a8}
+  .filter:not(.active):hover,.tabs button:not(.active):hover,.tiny-btn:hover,.album-controls button:not(:disabled):hover{background:#eee1f6;border-color:#b99bd0}
+  .btn.dark:hover{box-shadow:0 6px 18px #71508728}
+  .dialog-close:hover{background:#ecddf6}
+}
+@media(prefers-reduced-motion:reduce){
+  .motion-pending{opacity:1;translate:none}
+  .reading-progress{display:none}
+}
+
+@media(prefers-reduced-motion:no-preference){input[type=range]::-webkit-slider-thumb{transition:box-shadow .2s ease}input[type=range]::-moz-range-thumb{transition:box-shadow .2s ease}}
+input[type=range]:active::-webkit-slider-thumb{box-shadow:0 0 0 6px #b68bd52e}
+input[type=range]:active::-moz-range-thumb{box-shadow:0 0 0 6px #b68bd52e}
