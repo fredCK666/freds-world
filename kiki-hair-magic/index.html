@@ -21,7 +21,24 @@ addEventListener('pageshow', event => {
   if (event.persisted || !visitorInteracted) startAtTop();
 });
 </script>
-<link rel="stylesheet" href="./style.css?v=20261018-nav1"><script type="module" src="./app.js?v=20261018-nav1"></script>
+<link rel="stylesheet" href="./style.css?v=20261018-nav2"><script type="module" src="./app.js?v=20261018-nav2"></script>
+<style>
+/* Lavender sliding mobile navigation: selection is not tied to the enquiry link. */
+@media(max-width:760px){
+  .mobile-bar{display:block;padding:10px 14px calc(10px + env(safe-area-inset-bottom));background:#fcf9fff2;border-top:1px solid #dfceee;box-shadow:0 -5px 24px #70488f0a}
+  .mobile-nav-track{position:relative;isolation:isolate;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;padding:0;border:1px solid #e4d6ef;background:#f0e7f7;border-radius:30px}
+  .mobile-nav-indicator{position:absolute;z-index:0;inset:0 auto 0 0;width:calc((100% - 12px)/3);border-radius:28px;background:linear-gradient(125deg,#9b72c2,#77509f);box-shadow:0 4px 12px #77509f33,inset 0 1px 0 #ffffff40;transform:translateX(var(--indicator-x,0px));opacity:0;transition:transform .38s cubic-bezier(.22,.8,.25,1),opacity .18s ease;pointer-events:none}
+  .mobile-bar.has-selection .mobile-nav-indicator{opacity:1}
+  .mobile-bar .mobile-nav-track a{position:relative;z-index:1;display:flex;align-items:center;justify-content:center;gap:6px;min-width:0;min-height:48px;padding:12px 6px;margin:0;border-radius:28px;background:transparent;color:#6b527f;font-size:12px;font-weight:600;line-height:1.4;white-space:nowrap;transition:color .22s ease,transform .18s ease}
+  .mobile-bar .mobile-nav-track a.is-active{color:#fff}
+  .mobile-bar .mobile-nav-track a:active{transform:scale(.95)}
+  .mobile-bar .mobile-nav-icon{font-size:17px;line-height:1;transition:transform .3s ease}
+  .mobile-bar a.is-active .mobile-nav-icon{transform:translateY(-1px) scale(1.08)}
+  .mobile-bar a:focus-visible{outline-offset:-3px}
+}
+@media(prefers-reduced-motion:reduce){.mobile-nav-indicator,.mobile-bar .mobile-nav-track a,.mobile-nav-icon{transition:none!important}}
+
+</style>
 </head>
 <body id="top">
 <a href="#main" class="skip">跳至主要內容</a>
@@ -46,5 +63,79 @@ addEventListener('pageshow', event => {
 <dialog id="work-dialog"><button class="dialog-close" aria-label="關閉作品">×</button><div id="work-detail"></div></dialog>
 <dialog id="consult-dialog"><button class="dialog-close" aria-label="關閉諮詢清單">×</button><div class="dialog-content"><div class="eyebrow">READY TO SAY HELLO</div><h2>你的變身清單準備好了 ♡</h2><p>先複製內容，再開啟 LINE 貼給 Kiki。<br>試色照片請下載後另外附上。</p><textarea id="consult-result" rows="12" readonly aria-label="可複製的諮詢清單"></textarea><button id="copy-consult" class="btn dark full">① 複製諮詢清單</button><a href="https://lin.ee/JQiPDiJ" target="_blank" rel="noopener noreferrer" class="btn outline full">② 開啟 Kiki 的 LINE ↗</a><p class="fine">這是諮詢內容，尚未送出或成立預約。</p></div></dialog>
 <div id="toast" role="status" aria-live="polite"></div><a class="floating-line" href="https://lin.ee/JQiPDiJ" target="_blank" rel="noopener noreferrer" aria-label="開啟 LINE 諮詢"><span>♡</span><b>LINE 諮詢</b><small>找 Kiki 聊聊 ↗</small></a>
+<script>
+(()=>{
+// Mobile section navigation: one moving highlight, shared by click and scroll.
+const bar = document.querySelector('.mobile-bar');
+const links = [...bar.querySelectorAll('a')];
+const sections = ['works', 'prices', 'studio', 'about', 'consult'].map(id => document.getElementById(id));
+let selected = null;
+let clickTarget = null;
+let releaseTimer = 0;
+let frame = 0;
+
+function selectSection(id) {
+  const index = links.findIndex(link => link.hash === '#' + id);
+  if (selected === index) return;
+  selected = index;
+  bar.classList.toggle('has-selection', index >= 0);
+  if (index >= 0) bar.style.setProperty('--indicator-x', `calc(${index * 100}% + ${index * 6}px)`);
+  links.forEach((link, i) => {
+    link.classList.toggle('is-active', i === index);
+    if (i === index) link.setAttribute('aria-current', 'location');
+    else link.removeAttribute('aria-current');
+  });
+}
+
+function sectionAtViewport() {
+  const guide = (document.querySelector('.header')?.getBoundingClientRect().bottom || 0) + 100;
+  let current = null;
+  for (const section of sections) {
+    if (section.getBoundingClientRect().top <= guide) current = section.id;
+  }
+  return current;
+}
+
+function syncScroll() {
+  frame = 0;
+  if (!clickTarget) selectSection(sectionAtViewport());
+}
+function queueSync() {
+  if (!frame) frame = requestAnimationFrame(syncScroll);
+}
+function releaseClick() {
+  clearTimeout(releaseTimer);
+  clickTarget = null;
+  queueSync();
+}
+
+// Anchor navigation remains native; the indicator responds immediately.
+document.addEventListener('click', event => {
+  const link = event.target.closest('a[href^="#"]');
+  if (!link || event.defaultPrevented || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+  const id = link.hash.slice(1);
+  if (!document.getElementById(id)) return;
+  clickTarget = id;
+  selectSection(id);
+  clearTimeout(releaseTimer);
+  releaseTimer = setTimeout(releaseClick, 1800);
+});
+addEventListener('scroll', () => {
+  if (clickTarget) {
+    clearTimeout(releaseTimer);
+    releaseTimer = setTimeout(releaseClick, 180);
+  }
+  queueSync();
+}, { passive: true });
+addEventListener('scrollend', releaseClick, { passive: true });
+for (const event of ['wheel', 'touchstart', 'pointerdown', 'keydown']) {
+  addEventListener(event, releaseClick, { passive: true });
+}
+addEventListener('resize', queueSync, { passive: true });
+addEventListener('pageshow', releaseClick);
+queueSync();
+
+})();
+</script>
 </body></html>
 

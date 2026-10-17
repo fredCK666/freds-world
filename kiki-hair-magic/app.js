@@ -1,4 +1,3 @@
-import './mobile-nav.js?v=20261018-nav1';
 import{hairAlphaFromScores,recolorPixels}from'./hair-color.js';
 import{WORKS,SERVICES,NOVEMBER_MENU,LENGTHS,COLORS,estimate,LINE_URL}from'./data.js?v=20261018-polish1';
 const $=s=>document.querySelector(s);const $$=s=>Array.from(document.querySelectorAll(s));
