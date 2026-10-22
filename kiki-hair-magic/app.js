@@ -71,7 +71,7 @@ renderFilters();renderGallery();renderPrices();updateEstimate();
 // Photo processing stays entirely on this device. No photo upload or persistence.
 const canvas=$('#hair-canvas'),ctx=canvas.getContext('2d',{willReadFrequently:true}),original=document.createElement('canvas'),octx=original.getContext('2d',{willReadFrequently:true}),mask=document.createElement('canvas'),mctx=mask.getContext('2d',{willReadFrequently:true});
 let hasPhoto=false,maskMode=null,drawing=false,showOriginal=false,segmenterPromise=null,photoGeneration=0,processing=false,maskReady=false,manualRevision=0;
-function hairStatus(text,state='waiting'){$('#hair-status').textContent=text;$('#photo-status').textContent=text;$('#photo-status').dataset.state=state;$('#manual-help').hidden=state!=='error';}
+function hairStatus(text,state='waiting'){$('#hair-status').textContent=text;$('#photo-status').textContent=text;$('#photo-status').dataset.state=state;$('#manual-help').hidden=state!=='error';$('#retry-mask').hidden=state!=='error';}
 function exitOriginal(){showOriginal=false;$('#compare').textContent='查看原圖';$('#preview-label').textContent=maskReady?'模擬效果':'尚未套色';}
 function chooseColor(){exitOriginal();renderColor();if(hasPhoto&&!maskReady)toast(processing?'正在辨識頭髮，完成後會套用你選的顏色。':'請先辨識頭髮，或點「手動標記頭髮」。');}
 function renderSwatches(){const root=$('#swatches');root.replaceChildren(...COLORS.map(c=>{const b=document.createElement('button');b.className='swatch'+(currentColor[1]===c[1]?' active':'');b.setAttribute('aria-label',c[0]);b.setAttribute('aria-pressed',String(currentColor[1]===c[1]));const dot=document.createElement('i');dot.style.background=c[1];const t=document.createElement('span');t.textContent=c[0];b.append(dot,t);b.onclick=()=>{currentColor=c;$('#custom-color').value=c[1];renderSwatches();chooseColor()};return b}))}
@@ -79,12 +79,15 @@ function renderColor(){if(!hasPhoto)return;ctx.drawImage(original,0,0);if(showOr
 $('#custom-color').oninput=e=>{currentColor=['自訂髮色',e.target.value];renderSwatches();chooseColor()};$('#intensity').oninput=()=>{$('#intensity-value').textContent=$('#intensity').value+'%';renderColor()};
 async function loadSegmenter(){
  if(!segmenterPromise)segmenterPromise=(async()=>{
-  const{FilesetResolver,ImageSegmenter}=await import('../assets/vision_bundle.js');
+  // Keep all inference assets relative to this app, including on GitHub Pages subpaths.
+  const{FilesetResolver,ImageSegmenter}=await import('./assets/vision_bundle.js');
+  const inferenceCanvas=document.createElement('canvas');
+  if(!inferenceCanvas.getContext('webgl2'))throw Error('WEBGL_UNAVAILABLE');
   const wasm=await FilesetResolver.forVisionTasks(new URL('./assets/wasm', import.meta.url).href);
   // RGB model is compatible with CPU preprocessing; the previous RGBA model was not.
   const parts=await Promise.all(['01','02'].map(async part=>{const response=await fetch(new URL('./assets/selfie_multiclass_256x256.tflite.part-'+part,import.meta.url));if(!response.ok)throw new Error('無法載入髮色模型');return new Uint8Array(await response.arrayBuffer())}));
   const model=new Uint8Array(parts.reduce((sum,part)=>sum+part.length,0));let offset=0;for(const part of parts){model.set(part,offset);offset+=part.length}
-  return ImageSegmenter.createFromOptions(wasm,{canvas:document.createElement('canvas'),baseOptions:{modelAssetBuffer:model,delegate:'CPU'},runningMode:'IMAGE',outputCategoryMask:false,outputConfidenceMasks:true});
+  return ImageSegmenter.createFromOptions(wasm,{canvas:inferenceCanvas,baseOptions:{modelAssetBuffer:model,delegate:'CPU'},runningMode:'IMAGE',outputCategoryMask:false,outputConfidenceMasks:true});
  })().catch(e=>{segmenterPromise=null;throw e});
  return segmenterPromise;
 }
@@ -92,12 +95,12 @@ async function autoMask(){
  if(!hasPhoto||processing)return;processing=true;const generation=photoGeneration,revision=manualRevision;
  $('#auto-mask').disabled=true;hairStatus('正在載入並辨識頭髮，首次使用請稍候…','loading');
  if(!maskReady)$('#preview-label').textContent='辨識中…';
- await new Promise(r=>setTimeout(r,60));let timer;
+ await new Promise(r=>setTimeout(r,60));let timer,result;
  try{
   const segmenter=await Promise.race([loadSegmenter(),new Promise((_,reject)=>{timer=setTimeout(()=>reject(Error('載入逾時')),60000)})]);
   clearTimeout(timer);if(generation!==photoGeneration||revision!==manualRevision)return;
   let count=0;
-  const result=segmenter.segment(original);
+  result=segmenter.segment(original);
   const masks=result?.confidenceMasks;if(!masks?.length)throw Error('沒有取得辨識結果');
   const labels=segmenter.getLabels();const index=labels.findIndex(x=>x.toLowerCase()==='hair');
   if(index<0)throw Error('沒有頭髮分類');
@@ -107,21 +110,21 @@ async function autoMask(){
   const tc=tmp.getContext('2d'),id=tc.createImageData(tmp.width,tmp.height);
   for(let i=0;i<decoded.alpha.length;i++)id.data[i*4+3]=decoded.alpha[i];
   tc.putImageData(id,0,0);mctx.globalCompositeOperation='source-over';mctx.clearRect(0,0,mask.width,mask.height);mctx.drawImage(tmp,0,0,mask.width,mask.height);
-  masks.forEach(m=>m.close?.());
   maskReady=count>=20;exitOriginal();renderColor();hairStatus('頭髮辨識完成！現在點選色票就能換色。','ready');
  }catch(error){
   if(generation===photoGeneration&&revision===manualRevision){
    console.warn('Kiki hair segmentation:',error?.message||String(error));
    if(maskReady)hairStatus('這次辨識未完成，已保留目前的試色範圍。','ready');
-   else{$('#preview-label').textContent='尚未套色';hairStatus('未能自動辨識。可重試，或點下方按鈕用手指標記頭髮。','error');}
+   else{$('#preview-label').textContent='尚未套色';hairStatus(error?.message==='WEBGL_UNAVAILABLE'?'此瀏覽器目前無法啟用影像辨識。請用 Safari 或 Chrome 開啟，或先手動標記頭髮。':error?.message==='找不到清楚的頭髮'?'這張照片沒有辨識到清楚的頭髮。請換一張光線清楚、頭髮完整入鏡的照片，或手動標記。':'辨識未完成，請確認網路後點「重新辨識」，也可以先手動標記頭髮。','error');}
   }
  }finally{
+  result?.confidenceMasks?.forEach(m=>m.close?.());
   clearTimeout(timer);processing=false;$('#auto-mask').disabled=!hasPhoto;
   if(hasPhoto&&generation!==photoGeneration)autoMask();
  }
 }
 $('#photo-upload').onchange=async e=>{const file=e.target.files[0];if(!file)return;if(!['image/jpeg','image/png','image/webp'].includes(file.type)){toast('請選擇 JPG、PNG 或 WebP 照片');e.target.value='';return}if(file.size>15*1024*1024){toast('照片超過 15 MB，請先縮小再上傳');e.target.value='';return}const url=URL.createObjectURL(file),img=new Image(),gen=++photoGeneration;img.onload=()=>{if(gen!==photoGeneration){URL.revokeObjectURL(url);return}const scale=Math.min(1,850/Math.max(img.naturalWidth,img.naturalHeight));for(const c of[canvas,original,mask]){c.width=Math.round(img.naturalWidth*scale);c.height=Math.round(img.naturalHeight*scale)}octx.drawImage(img,0,0,original.width,original.height);hasPhoto=true;maskReady=false;manualRevision++;showOriginal=false;$('#compare').textContent='查看原圖';$('#preview-label').textContent='等待辨識';$('#upload-empty').hidden=true;canvas.hidden=false;$('#canvas-top').hidden=false;$('#canvas-bottom').hidden=false;$('#photo-feedback').hidden=false;$('#manual-help').hidden=true;$('#paint').disabled=false;$('#erase').disabled=false;$('#auto-mask').disabled=false;setBrush(null);renderColor();URL.revokeObjectURL(url);if(processing){$('#hair-status').textContent='照片已更換，請稍後點「自動辨識頭髮」。'}else autoMask()};img.onerror=()=>{URL.revokeObjectURL(url);toast('無法讀取這張照片，請換一張 JPG 或 PNG')};img.src=url;e.target.value=''};
-$('#replace-photo').onclick=()=>$('#photo-upload').click();$('#delete-photo').onclick=()=>{photoGeneration++;hasPhoto=false;maskReady=false;manualRevision++;drawing=false;maskMode=null;for(const c of[canvas,original,mask]){c.width=1;c.height=1}canvas.hidden=true;$('#canvas-top').hidden=true;$('#canvas-bottom').hidden=true;$('#photo-feedback').hidden=true;$('#upload-empty').hidden=false;$('#paint').disabled=true;$('#erase').disabled=true;$('#auto-mask').disabled=true;hairStatus('照片已從頁面清除。');toast('已刪除照片')};$('#auto-mask').onclick=autoMask;
+$('#replace-photo').onclick=()=>$('#photo-upload').click();$('#delete-photo').onclick=()=>{photoGeneration++;hasPhoto=false;maskReady=false;manualRevision++;drawing=false;maskMode=null;for(const c of[canvas,original,mask]){c.width=1;c.height=1}canvas.hidden=true;$('#canvas-top').hidden=true;$('#canvas-bottom').hidden=true;$('#photo-feedback').hidden=true;$('#upload-empty').hidden=false;$('#paint').disabled=true;$('#erase').disabled=true;$('#auto-mask').disabled=true;hairStatus('照片已從頁面清除。');toast('已刪除照片')};$('#auto-mask').onclick=autoMask;$('#retry-mask').onclick=autoMask;
 function setBrush(mode){maskMode=mode;for(const id of['paint','erase']){$('#'+id).classList.toggle('active',mode===id);$('#'+id).setAttribute('aria-pressed',String(mode===id))}canvas.style.cursor=mode?'crosshair':'default'}$('#paint').onclick=()=>{setBrush(maskMode==='paint'?null:'paint');if(maskMode){manualRevision++;exitOriginal();hairStatus('在照片的頭髮上塗抹，就能加入試色範圍。','manual')}};$('#erase').onclick=()=>{setBrush(maskMode==='erase'?null:'erase');if(maskMode){manualRevision++;exitOriginal();hairStatus('在誤選的位置塗抹，移除多餘的試色。','manual')}};
 let lastPoint=null;function point(e){const r=canvas.getBoundingClientRect();return[(e.clientX-r.left)*canvas.width/r.width,(e.clientY-r.top)*canvas.height/r.height]}
 function brush(e){if(!drawing||!maskMode||showOriginal)return;const p=point(e),r=canvas.getBoundingClientRect(),size=Number($('#brush-size').value)*canvas.width/r.width;mctx.globalCompositeOperation=maskMode==='erase'?'destination-out':'source-over';mctx.strokeStyle='#fff';mctx.fillStyle='#fff';mctx.lineCap='round';mctx.lineJoin='round';mctx.lineWidth=size;mctx.beginPath();mctx.moveTo(...(lastPoint||p));mctx.lineTo(...p);mctx.stroke();mctx.beginPath();mctx.arc(p[0],p[1],size/2,0,Math.PI*2);mctx.fill();mctx.globalCompositeOperation='source-over';lastPoint=p;maskReady=true;$('#preview-label').textContent='模擬效果';renderColor()}
@@ -141,4 +144,5 @@ if(modelContext?.registerTool){
  try{Promise.resolve(modelContext.registerTool(tool,{signal:lifecycle.signal})).catch(()=>{});}catch{}
  addEventListener('pagehide',()=>lifecycle.abort(),{once:true});
 }
+
 
